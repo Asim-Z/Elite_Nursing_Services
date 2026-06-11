@@ -37,7 +37,7 @@ nav {
     justify-content: space-between;
     align-items: center;
     z-index: 1000;
-    border-bottom: 1.5px solid #b8d9eb;
+    border-bottom: 2px solid #5291b3;
 }
 
 .logo {
@@ -83,7 +83,7 @@ nav {
 /* ── Hero Rules ── */
 .hero {
     margin-top: 70px;
-    min-height: 82vh;
+    min-height: 78vh;
     position: relative;
     overflow: hidden;
     display: block; 
@@ -125,7 +125,7 @@ nav {
     flex-direction: column;
     justify-content: center;
     height: 100%;
-    min-height: 82vh;
+    min-height: 78vh;
     padding: 80px 60px 80px 80px;
     max-width: 650px; 
     background: #94cce2; 
@@ -221,7 +221,7 @@ nav {
 }
 
 .service-card {
-    background: white;
+    background: #F4F6F4;
     padding: 44px 36px;
     border-right: 1.5px solid var(--border);
     border-bottom: 1.5px solid var(--border);
@@ -292,60 +292,64 @@ nav {
 
 /* ── Why Choose Us ── */
 .why-choose {
-    padding: 100px 60px;
+    padding: 0;
     background: var(--teal-dark);
-}
-
-.why-choose .section-header h2 {
-    color: var(--white);
-}
-
-.why-choose .section-header p {
-    color: rgba(255,255,255,0.6);
 }
 
 .why-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    border: 1.5px solid rgba(255,255,255,0.15);
-    border-radius: 12px;
-    overflow: hidden;
-    max-width: 1300px;
+    width: 100%;
 }
 
 .why-item {
-    padding: 48px 36px;
-    border-right: 1.5px solid rgba(255,255,255,0.15);
+    padding: 32px 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    position: relative;
+}
+
+.why-item:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 66%;
+    width: 1px;
+    background: rgba(255,255,255,0.15);
 }
 
 .why-item:last-child {
     border-right: none;
 }
 
+.why-icon {
+    width: 20px;
+    height: 20px;
+    color: rgba(255,255,255,0.75);
+    margin-bottom: 12px;
+    flex-shrink: 0;
+}
+
 .why-number {
     font-family: 'DM Serif Display', serif;
-    font-size: 52px;
+    font-size: 28px;
     color: var(--white);
-    margin-bottom: 12px;
+    margin-bottom: 4px;
     line-height: 1;
 }
 
 .why-item h3 {
-    font-size: 15px;
-    font-weight: 600;
-    color: rgba(255,255,255,0.9);
-    margin-bottom: 10px;
+    font-size: 13px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.5);
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 1px;
+    margin: 0;
 }
-
-.why-item p {
-    color: rgba(255,255,255,0.55);
-    font-size: 14px;
-    line-height: 1.7;
-    font-weight: 300;
-}
-
 /* ── Modal & Layout Step Framework ── */
 .modal {
     display: none;
@@ -723,7 +727,8 @@ nav {
 footer {
     background: var(--off-white);
     border-top: 1.5px solid var(--border);
-    padding: 64px 60px 32px;
+    padding-top: 64px; 
+    /* Removed the side and bottom padding so the teal bar can stretch! */
 }
 
 .footer-content {
@@ -732,6 +737,8 @@ footer {
     gap: 60px;
     max-width: 1300px;
     margin: 0 auto 48px;
+    padding-left: 60px;  /* Moved the 60px wall here to protect your text */
+    padding-right: 60px; 
 }
 
 .footer-logo {
@@ -765,12 +772,20 @@ footer {
 }
 
 .footer-bottom {
-    padding-top: 28px;
-    border-top: 1.5px solid var(--border);
-    color: var(--mid-grey);
+    background: var(--teal);
+    border-top: 1.5px solid var(--teal);
+    color: var(--white);
     font-size: 13px;
+    padding-top: 28px;
+    padding-bottom: 28px; 
+    width: 100%; 
+}
+
+.footer-bottom-inner {
     max-width: 1300px;
     margin: 0 auto;
+    padding-left: 20px;
+    padding-right: 20px; 
 }
 
 /* ── Service Card Click Hints ── */
@@ -922,7 +937,7 @@ footer {
     .why-grid { grid-template-columns: repeat(2, 1fr); }
     .why-item:nth-child(2) { border-right: none; }
     .why-item:nth-child(1),
-    .why-item:nth-child(2) { border-bottom: 1.5px solid rgba(255,255,255,0.15); }
+    .why-item:nth-child(2) { border-bottom: 1px solid rgba(255,255,255,0.12); }
     .footer-content { grid-template-columns: 1fr 1fr; }
 }
 
@@ -937,9 +952,9 @@ footer {
     .services, .why-choose { padding: 70px 24px; }
     .services-grid { grid-template-columns: 1fr; }
     .why-grid { grid-template-columns: 1fr; }
-    .why-item { border-right: none; border-bottom: 1.5px solid rgba(255,255,255,0.15); }
-    footer { padding: 48px 24px 24px; }
-    .footer-content { grid-template-columns: 1fr; gap: 36px; }
+    .why-item { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.12); }
+    footer { padding: 48px 0 0; }
+    .footer-content { grid-template-columns: 1fr; gap: 36px; padding: 0 24px; }
     .modal-content { padding: 36px 24px; }
     .booking-scheduler { grid-template-columns: 1fr; }
     .calendar-wrapper { border-right: none; border-bottom: 1.5px solid var(--border); }
