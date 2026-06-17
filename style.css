@@ -37,7 +37,8 @@ nav {
     justify-content: space-between;
     align-items: center;
     z-index: 1000;
-    border-bottom: 3px solid #c9cb57
+    border-bottom: 3px solid var(--teal-dark);
+
 }
 
 .logo {
