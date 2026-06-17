@@ -479,6 +479,24 @@
             return firestoreDb;
         }
 
+        async function checkUnseenAppointments() {
+            try {
+                const { collection, query, where, getDocs } = await import("https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js");
+                const db = await getFirebase();
+                const q = query(collection(db, "bookings"), where("seen", "==", false));
+                const snapshot = await getDocs(q);
+                if (snapshot.size > 0) {
+                    document.querySelector('nav').style.borderBottom = "3px solid #c9cb57";
+                } else {
+                    document.querySelector('nav').style.borderBottom = "1px solid rgba(0,0,0,0.08)";
+                }
+            } catch (err) {
+                console.error("Could not check unseen appointments:", err.message);
+            }
+        }
+
+checkUnseenAppointments();
+
         let currentNavDate = new Date();
         let selectedDateStr = "";
         const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
@@ -637,7 +655,8 @@
                     phone: document.getElementById('phone').value,
                     address: document.getElementById('address').value,
                     notes: document.getElementById('notes').value,
-                    createdAt: new Date().toISOString()
+                    createdAt: new Date().toISOString(),
+                    seen : false
                 });
                 console.log("Firestore doc saved:", docRef.id);
 
