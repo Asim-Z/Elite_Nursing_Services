@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin — Elite Nursing Services</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --teal-dark: #084f4f;
+            --teal-mid: #0d6b6b;
+            --white: #ffffff;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-300: #d1d5db;
+            --gray-500: #6b7280;
+            --gray-700: #374151;
+            --gray-900: #111827;
+            --red: #ef4444;
+            --green: #10b981;
+            --amber: #f59e0b;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--gray-50);
+            color: var(--gray-900);
+            min-height: 100vh;
+        }
+
+        /* ── Password Gate ── */
+        #gate {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: var(--teal-dark);
+        }
+
+        .gate-box {
+            background: white;
+            padding: 48px 40px;
+            width: 100%;
+            max-width: 380px;
+            border-radius: 4px;
+        }
+
+        .gate-box h1 {
+            font-family: 'DM Serif Display', serif;
+            font-size: 22px;
+            color: var(--teal-dark);
+            margin-bottom: 6px;
+        }
+
+        .gate-box p {
+            font-size: 13px;
+            color: var(--gray-500);
+            margin-bottom: 28px;
+        }
+
+        .gate-box input {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid var(--gray-300);
+            border-radius: 4px;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            outline: none;
+            margin-bottom: 12px;
+            transition: border-color 0.2s;
+        }
+
+        .gate-box input:focus { border-color: var(--teal-dark); }
+
+        .gate-box button {
+            width: 100%;
+            padding: 12px;
+            background: var(--teal-dark);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .gate-box button:hover { background: var(--teal-mid); }
+
+        .gate-error {
+            font-size: 13px;
+            color: var(--red);
+            margin-top: 10px;
+            display: none;
+        }
+
+        /* ── Admin Panel ── */
+        #panel { display: none; }
+
+        .topbar {
+            background: var(--teal-dark);
+            padding: 16px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .topbar-brand {
+            font-family: 'DM Serif Display', serif;
+            color: white;
+            font-size: 18px;
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .topbar-right span {
+            font-size: 13px;
+            color: rgba(255,255,255,0.6);
+        }
+
+        .btn-logout {
+            font-size: 13px;
+            color: rgba(255,255,255,0.7);
+            background: none;
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 6px 14px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn-logout:hover { background: rgba(255,255,255,0.08); }
+
+        .main {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 40px 32px;
+        }
+
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 32px;
+        }
+
+        .page-header h2 {
+            font-family: 'DM Serif Display', serif;
+            font-size: 26px;
+            color: var(--gray-900);
+        }
+
+        .page-header p {
+            font-size: 13px;
+            color: var(--gray-500);
+            margin-top: 3px;
+        }
+
+        .btn-mark-all {
+            padding: 10px 20px;
+            background: var(--teal-dark);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn-mark-all:hover { background: var(--teal-mid); }
+
+        /* ── Stats Row ── */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px 24px;
+            border-radius: 4px;
+            border: 1px solid var(--gray-100);
+        }
+
+        .stat-card .label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--gray-500);
+            margin-bottom: 8px;
+        }
+
+        .stat-card .value {
+            font-family: 'DM Serif Display', serif;
+            font-size: 32px;
+            color: var(--teal-dark);
+        }
+
+        /* ── Filters ── */
+        .filters {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .filter-btn {
+            padding: 7px 16px;
+            border-radius: 4px;
+            border: 1px solid var(--gray-300);
+            background: white;
+            font-size: 13px;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            color: var(--gray-700);
+        }
+
+        .filter-btn.active {
+            background: var(--teal-dark);
+            color: white;
+            border-color: var(--teal-dark);
+        }
+
+        /* ── Table ── */
+        .table-wrap {
+            background: white;
+            border-radius: 4px;
+            border: 1px solid var(--gray-100);
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: var(--gray-50);
+            border-bottom: 1px solid var(--gray-100);
+        }
+
+        th {
+            padding: 12px 20px;
+            text-align: left;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.7px;
+            color: var(--gray-500);
+        }
+
+        td {
+            padding: 16px 20px;
+            font-size: 14px;
+            color: var(--gray-700);
+            border-bottom: 1px solid var(--gray-100);
+            vertical-align: middle;
+        }
+
+        tr:last-child td { border-bottom: none; }
+
+        tr.unseen { background: #f0faf9; }
+
+        .unseen-dot {
+            display: inline-block;
+            width: 7px;
+            height: 7px;
+            background: var(--teal-dark);
+            border-radius: 50%;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        .name-cell { font-weight: 500; color: var(--gray-900); }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .badge-unseen { background: #d1fae5; color: #065f46; }
+        .badge-seen { background: var(--gray-100); color: var(--gray-500); }
+
+        .btn-seen {
+            padding: 6px 14px;
+            border-radius: 4px;
+            border: 1px solid var(--gray-300);
+            background: white;
+            font-size: 12px;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            color: var(--gray-700);
+            white-space: nowrap;
+        }
+
+        .btn-seen:hover { border-color: var(--teal-dark); color: var(--teal-dark); }
+        .btn-seen:disabled { opacity: 0.4; cursor: default; }
+
+        .empty-state {
+            padding: 60px 20px;
+            text-align: center;
+            color: var(--gray-500);
+            font-size: 14px;
+        }
+
+        .loading {
+            padding: 60px 20px;
+            text-align: center;
+            color: var(--gray-500);
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Password Gate -->
+<div id="gate">
+    <div class="gate-box">
+        <h1>Elite Nursing Services</h1>
+        <p>Admin access only</p>
+        <input type="password" id="pwd-input" placeholder="Enter password" />
+        <button onclick="checkPassword()">Sign In</button>
+        <p class="gate-error" id="gate-error">Incorrect password. Try again.</p>
+    </div>
+</div>
+
+<!-- Admin Panel -->
+<div id="panel">
+    <div class="topbar">
+        <div class="topbar-brand">Elite Nursing — Admin</div>
+        <div class="topbar-right">
+            <span id="last-refreshed"></span>
+            <button class="btn-logout" onclick="logout()">Sign Out</button>
+        </div>
+    </div>
+
+    <div class="main">
+        <div class="page-header">
+            <div>
+                <h2>Appointments</h2>
+                <p id="unseen-summary">Loading...</p>
+            </div>
+            <button class="btn-mark-all" onclick="markAllSeen()">Mark All as Seen</button>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="label">Total Bookings</div>
+                <div class="value" id="stat-total">—</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Unseen</div>
+                <div class="value" id="stat-unseen">—</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Seen</div>
+                <div class="value" id="stat-seen">—</div>
+            </div>
+        </div>
+
+        <div class="filters">
+            <button class="filter-btn active" onclick="setFilter('all', this)">All</button>
+            <button class="filter-btn" onclick="setFilter('unseen', this)">Unseen</button>
+            <button class="filter-btn" onclick="setFilter('seen', this)">Seen</button>
+        </div>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Client</th>
+                        <th>Service</th>
+                        <th>Date & Time</th>
+                        <th>Contact</th>
+                        <th>Notes</th>
+                        <th>Status</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="appointments-body">
+                    <tr><td colspan="7" class="loading">Loading appointments...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Firebase -->
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getFirestore, collection, getDocs, doc, updateDoc, writeBatch, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyCcentsIM6s8559lCI8_xhO95RinVyIET4",
+        authDomain: "faiz-web-1eb70.firebaseapp.com",
+        projectId: "faiz-web-1eb70",
+        storageBucket: "faiz-web-1eb70.firebasestorage.app",
+        messagingSenderId: "695567261713",
+        appId: "1:695567261713:web:75cb2556e1a985d2bbd1b0",
+        measurementId: "G-R0JPRD4SS8"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    let allAppointments = [];
+    let currentFilter = 'all';
+
+    window.db = db;
+    window.allAppointments = allAppointments;
+
+    async function loadAppointments() {
+        try {
+            const q = query(collection(db, "bookings"), orderBy("createdAt", "desc"));
+            const snapshot = await getDocs(q);
+            allAppointments = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+            window.allAppointments = allAppointments;
+            renderTable();
+            updateStats();
+            updateLastRefreshed();
+        } catch (err) {
+            document.getElementById('appointments-body').innerHTML =
+                `<tr><td colspan="7" class="empty-state">Error loading appointments. Check Firestore rules.</td></tr>`;
+        }
+    }
+
+    function renderTable() {
+        const tbody = document.getElementById('appointments-body');
+        const filtered = currentFilter === 'all' ? allAppointments
+            : allAppointments.filter(a => currentFilter === 'unseen' ? !a.seen : a.seen);
+
+        if (filtered.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="7" class="empty-state">No appointments found.</td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = filtered.map(a => `
+            <tr class="${!a.seen ? 'unseen' : ''}">
+                <td class="name-cell">
+                    ${!a.seen ? '<span class="unseen-dot"></span>' : ''}
+                    ${a.firstName} ${a.lastName}
+                </td>
+                <td>${a.service || '—'}</td>
+                <td>${formatDate(a.date)}<br><span style="color:var(--gray-500);font-size:12px">${a.time || ''}</span></td>
+                <td>${a.email || '—'}<br><span style="color:var(--gray-500);font-size:12px">${a.phone || ''}</span></td>
+                <td style="max-width:180px;color:var(--gray-500);font-size:13px">${a.notes || '—'}</td>
+                <td><span class="badge ${!a.seen ? 'badge-unseen' : 'badge-seen'}">${!a.seen ? 'New' : 'Seen'}</span></td>
+                <td>
+                    <button class="btn-seen" onclick="markSeen('${a.id}')" ${a.seen ? 'disabled' : ''}>
+                        ${a.seen ? 'Seen' : 'Mark Seen'}
+                    </button>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    function updateStats() {
+        const unseen = allAppointments.filter(a => !a.seen).length;
+        const seen = allAppointments.filter(a => a.seen).length;
+        document.getElementById('stat-total').textContent = allAppointments.length;
+        document.getElementById('stat-unseen').textContent = unseen;
+        document.getElementById('stat-seen').textContent = seen;
+        document.getElementById('unseen-summary').textContent =
+            unseen > 0 ? `${unseen} unseen appointment${unseen > 1 ? 's' : ''} need your attention` : 'All appointments reviewed';
+    }
+
+    function updateLastRefreshed() {
+        const now = new Date();
+        document.getElementById('last-refreshed').textContent =
+            `Last updated ${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+    }
+
+    function formatDate(dateStr) {
+        if (!dateStr) return '—';
+        const d = new Date(dateStr + 'T00:00:00');
+        return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+
+    window.markSeen = async function(id) {
+        await updateDoc(doc(db, "bookings", id), { seen: true });
+        const appt = allAppointments.find(a => a.id === id);
+        if (appt) appt.seen = true;
+        renderTable();
+        updateStats();
+    };
+
+    window.markAllSeen = async function() {
+        const unseen = allAppointments.filter(a => !a.seen);
+        if (unseen.length === 0) return;
+        const batch = writeBatch(db);
+        unseen.forEach(a => batch.update(doc(db, "bookings", a.id), { seen: true }));
+        await batch.commit();
+        allAppointments.forEach(a => a.seen = true);
+        renderTable();
+        updateStats();
+    };
+
+    window.setFilter = function(filter, btn) {
+        currentFilter = filter;
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        renderTable();
+    };
+
+    window.loadAppointments = loadAppointments;
+</script>
+
+<script>
+    const PASSWORD = 'adilasim786';
+
+    function checkPassword() {
+        const val = document.getElementById('pwd-input').value;
+        if (val === PASSWORD) {
+            document.getElementById('gate').style.display = 'none';
+            document.getElementById('panel').style.display = 'block';
+            window.loadAppointments();
+        } else {
+            document.getElementById('gate-error').style.display = 'block';
+        }
+    }
+
+    function logout() {
+        document.getElementById('gate').style.display = 'flex';
+        document.getElementById('panel').style.display = 'none';
+        document.getElementById('pwd-input').value = '';
+        document.getElementById('gate-error').style.display = 'none';
+    }
+
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Enter') checkPassword();
+    });
+
+    window.checkPassword = checkPassword;
+    window.logout = logout;
+</script>
+
+</body>
+</html>
