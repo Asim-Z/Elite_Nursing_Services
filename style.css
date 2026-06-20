@@ -46,6 +46,14 @@ nav {
     font-size: 22px;
     color: var(--teal-dark);
     letter-spacing: -0.3px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.logo img {
+    height: 42px;
+    width: auto;
 }
 
 .nav-links {
