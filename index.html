@@ -148,7 +148,6 @@
         </div>
     </section>
 
-    <!-- Service Spotlight Section -->
     <section class="service-spotlight" id="serviceSpotlight">
         <div class="spotlight-inner">
             <button class="spotlight-close" onclick="closeSpotlight()">✕ Close</button>
@@ -167,7 +166,6 @@
             </div>
         </div>
     </section>
-
 
     <footer id="contact">
         <div class="footer-content">
@@ -195,20 +193,17 @@
             </div>
         </div>
         
-        <!-- MODIFIED PART START -->
         <div class="footer-bottom">
             <div class="footer-bottom-inner">
                 <p>&copy; 2024 Elite Nursing Services. All rights reserved. | Licensed Healthcare Provider</p>
             </div>
         </div>
-        <!-- MODIFIED PART END -->
     </footer>
 
     <div class="modal" id="bookingModal">
         <div class="modal-content">
             <span class="close-modal" onclick="closeBookingModal()">&times;</span>
             
-
             <div id="step-service-select" class="modal-step active">
                 <h2>Select a Service</h2>
                 <p class="step-subtitle">Please select the type of care program you require to view available scheduling sessions.</p>
@@ -273,7 +268,6 @@
                         <div class="form-group">
                             <label for="phone">Phone Number *</label>
                             <input type="tel" id="phone" placeholder="000-000-0000" required>
-
                         </div>
                     </div>
 
@@ -308,8 +302,8 @@
                         <textarea id="notes" placeholder="Tell us about your specific needs or any questions you have..."></textarea>
                     </div>
                     <div class="success-message" id="successMessage">
-                    ✓ Appointment request submitted successfully! We'll contact you within 24 hours.
-                </div>
+                        ✓ Appointment request submitted successfully! We'll contact you within 24 hours.
+                    </div>
                     <button type="submit" class="submit-booking">Submit Appointment Request</button>
                 </form>
             </div>
@@ -359,7 +353,6 @@
                 booking: "DME Supplies"
             },
             chronic: {
-        
                 bg: "linear-gradient(135deg, var(--teal-light), var(--white))",
                 title: "Chronic Disease Management",
                 desc: "Personalized in-home support for patients living with diabetes, hypertension, COPD, heart disease, and more. Our nurses help you manage your condition and live better day to day.",
@@ -428,7 +421,6 @@
             section.classList.add('open');
             document.getElementById('serviceSpotlight').style.background = data.bg;
             document.querySelectorAll('.service-card').forEach(c => c.classList.remove('active-card'));
-            // find and highlight active card
             const cards = document.querySelectorAll('.service-card');
             const keys = ['iv','wound','dme','chronic','cpr','elder'];
             const idx = keys.indexOf(key);
@@ -445,7 +437,6 @@
             document.querySelectorAll('.service-card').forEach(c => c.classList.remove('active-card'));
         }
 
-        // ── Track if EmailJS init has already run to avoid duplicate sends ──
         let emailjsReady = false;
         if (!emailjsReady) {
             emailjs.init("Ty-wadTddDfStLA2F");
@@ -453,13 +444,12 @@
             console.log("EmailJS initialized once");
         }
 
-        // ── Firebase setup (loaded once, reused) ──
         let firebaseApp = null;
         let firestoreDb = null;
+        let globalBlockedDates = new Set(); // Global array mapping database blocks
 
         async function getFirebase() {
             if (firebaseApp && firestoreDb) {
-                console.log("Reusing existing Firebase instance");
                 return firestoreDb;
             }
             const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js");
@@ -475,8 +465,19 @@
             };
             firebaseApp = initializeApp(firebaseConfig, "nursing-app");
             firestoreDb = getFirestore(firebaseApp);
-            console.log("Firebase initialized fresh");
             return firestoreDb;
+        }
+
+        // Freshly look up administrative unavailability records
+        async function loadGlobalBlockedDates() {
+            try {
+                const { collection, getDocs } = await import("https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js");
+                const db = await getFirebase();
+                const snapshot = await getDocs(collection(db, "unavailability"));
+                globalBlockedDates = new Set(snapshot.docs.map(doc => doc.id));
+            } catch (err) {
+                console.error("Could not fetch unavailability criteria:", err.message);
+            }
         }
 
         async function checkUnseenAppointments() {
@@ -489,21 +490,22 @@
                     document.querySelector('nav').style.borderBottom = "3px solid #c9cb57";
                 } else {
                     document.querySelector('nav').style.borderBottom = "3px solid var(--teal-dark)";
-
                 }
             } catch (err) {
                 console.error("Could not check unseen appointments:", err.message);
             }
         }
 
-checkUnseenAppointments();
+        checkUnseenAppointments();
 
         let currentNavDate = new Date();
         let selectedDateStr = "";
         const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
         const baseTimeSlots = ["08:30 AM","10:00 AM","11:30 AM","01:00 PM","02:30 PM","04:00 PM","05:30 PM"];
 
-        function openBookingModal(serviceName) {
+        // Force asynchronous lookup before drawing the client modal views
+        async function openBookingModal(serviceName) {
+            await loadGlobalBlockedDates();
             document.getElementById('bookingModal').classList.add('active');
             document.body.style.overflow = 'hidden';
             if (serviceName) {
@@ -547,17 +549,21 @@ checkUnseenAppointments();
             const todayStr = new Date().toISOString().split('T')[0];
             const daysGrid = document.getElementById('calendarDays');
             daysGrid.innerHTML = "";
+            
             for (let i = 0; i < firstDayIndex; i++) {
                 const emptyDiv = document.createElement('div');
                 emptyDiv.classList.add('day', 'empty');
                 daysGrid.appendChild(emptyDiv);
             }
+            
             for (let day = 1; day <= totalDays; day++) {
                 const dayDiv = document.createElement('div');
                 dayDiv.classList.add('day');
                 dayDiv.textContent = day;
                 const loopDateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
-                if (loopDateStr < todayStr) {
+                
+                // CORE DISABLING CONDITION: Check past dates OR check if date matches administrative blocks
+                if (loopDateStr < todayStr || globalBlockedDates.has(loopDateStr)) {
                     dayDiv.classList.add('disabled');
                 } else {
                     if (loopDateStr === selectedDateStr) dayDiv.classList.add('selected');
@@ -576,7 +582,6 @@ checkUnseenAppointments();
             renderTimeSlots(dateStr);
         }
 
-        // ── Fetch booked slots from Firebase for a given date ──
         async function renderTimeSlots(dateStr) {
             const slotsGrid = document.getElementById('slotsGrid');
             slotsGrid.innerHTML = '<p class="select-date-prompt">Loading slots...</p>';
@@ -591,7 +596,6 @@ checkUnseenAppointments();
                     const data = doc.data();
                     if (data.time) bookedSlots.push(data.time);
                 });
-                console.log("Booked slots for", dateStr, ":", bookedSlots);
             } catch (err) {
                 console.error("Could not fetch slots from Firebase:", err.message);
             }
@@ -616,18 +620,15 @@ checkUnseenAppointments();
             });
         }
 
-        // ── Track if a submission is already in progress to prevent double sends ──
         let isSubmitting = false;
 
         async function submitBooking(event) {
             event.preventDefault();
 
             if (isSubmitting) {
-                console.warn("Submit already in progress — ignoring duplicate call");
                 return;
             }
             isSubmitting = true;
-            console.log("=== submitBooking called ===");
 
             const service = document.getElementById('selectedServiceInput').value;
             const date = document.getElementById('selectedDateInput').value;
@@ -645,7 +646,6 @@ checkUnseenAppointments();
             const patientName = firstName + " " + lastName;
 
             try {
-                console.log("Connecting to Firebase...");
                 const { collection, addDoc } = await import("https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js");
                 const db = await getFirebase();
 
@@ -659,10 +659,7 @@ checkUnseenAppointments();
                     createdAt: new Date().toISOString(),
                     seen : false
                 });
-                console.log("Firestore doc saved:", docRef.id);
 
-                // ── Admin email ──
-                console.log("Sending admin email...");
                 await emailjs.send("service_ayhpe97", "template_100p51j", {
                     client_name: patientName,
                     client_email: patientEmail,
@@ -670,16 +667,12 @@ checkUnseenAppointments();
                     service, date, time,
                     notes: document.getElementById('notes').value
                 });
-                console.log("Admin email sent");
 
-                // ── Patient confirmation email ──
-                console.log("Sending patient email...");
                 await emailjs.send("service_ayhpe97", "template_mdkah8w", {
                     to_name: patientName,
                     to_email: patientEmail,
                     service, date, time
                 });
-                console.log("Patient email sent");
 
                 document.getElementById('successMessage').classList.add('active');
                 document.getElementById('bookingForm').reset();

@@ -137,6 +137,45 @@
 
         .btn-logout:hover { background: rgba(255,255,255,0.08); }
 
+        /* ── Tab System Navigation ── */
+        .admin-tabs {
+            display: flex;
+            background: var(--teal-dark);
+            padding: 0 32px;
+            gap: 24px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .tab-link {
+            color: rgba(255,255,255,0.65);
+            background: none;
+            border: none;
+            padding: 14px 4px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .tab-link:hover {
+            color: white;
+        }
+
+        .tab-link.active {
+            color: white;
+            border-bottom-color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
         .main {
             max-width: 1100px;
             margin: 0 auto;
@@ -320,11 +359,164 @@
             color: var(--gray-500);
             font-size: 14px;
         }
+
+        /* ── Availability Calendar Styles ── */
+        .availability-container {
+            background: white;
+            border-radius: 4px;
+            border: 1px solid var(--gray-100);
+            padding: 32px;
+            max-width: 480px;
+        }
+
+        .cal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+        }
+
+        .cal-header h3 {
+            font-family: 'DM Serif Display', serif;
+            font-size: 20px;
+            color: var(--teal-dark);
+        }
+
+        .cal-nav-btn {
+            background: none;
+            border: 1px solid var(--gray-300);
+            border-radius: 4px;
+            width: 32px;
+            height: 32px;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gray-700);
+        }
+
+        .cal-nav-btn:hover {
+            border-color: var(--teal-dark);
+            color: var(--teal-dark);
+        }
+
+        .cal-weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            text-align: center;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--gray-500);
+            margin-bottom: 12px;
+        }
+
+        .cal-days-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 6px;
+            margin-bottom: 24px;
+        }
+
+        .admin-day {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--gray-700);
+            border-radius: 4px;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: all 0.15s;
+            background: var(--gray-50);
+            user-select: none;
+        }
+
+        .admin-day:hover:not(.empty):not(.disabled) {
+            border-color: var(--teal-dark);
+        }
+
+        .admin-day.empty {
+            background: none;
+            cursor: default;
+        }
+
+        .admin-day.disabled {
+            color: var(--gray-300);
+            background: none;
+            cursor: not-allowed;
+        }
+
+        /* State colors matching index look or clear administrative signals */
+        .admin-day.blocked {
+            background: #fee2e2;
+            color: #991b1b;
+            border-color: #fca5a5;
+        }
+
+        .admin-day.pending-block {
+            background: #fef3c7;
+            color: #92400e;
+            border-color: #fcd34d;
+        }
+
+        .admin-day.pending-unblock {
+            background: #dcfce7;
+            color: #166534;
+            border-color: #86efac;
+        }
+
+        .legend-row {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: var(--gray-500);
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+        }
+
+        .btn-save-cal {
+            width: 100%;
+            padding: 14px;
+            background: var(--teal-dark);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn-save-cal:hover { background: var(--teal-mid); }
+        .btn-save-cal:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .status-msg {
+            text-align: center;
+            margin-top: 12px;
+            font-size: 13px;
+            min-height: 20px;
+            color: var(--teal-mid);
+            font-weight: 500;
+        }
     </style>
 </head>
 <body>
 
-<!-- Password Gate -->
 <div id="gate">
     <div class="gate-box">
         <h1>Elite Nursing Services</h1>
@@ -335,7 +527,6 @@
     </div>
 </div>
 
-<!-- Admin Panel -->
 <div id="panel">
     <div class="topbar">
         <div class="topbar-brand">Elite Nursing — Admin</div>
@@ -345,61 +536,100 @@
         </div>
     </div>
 
-    <div class="main">
-        <div class="page-header">
-            <div>
-                <h2>Appointments</h2>
-                <p id="unseen-summary">Loading...</p>
-            </div>
-            <button class="btn-mark-all" onclick="markAllSeen()">Mark All as Seen</button>
-        </div>
+    <div class="admin-tabs">
+        <button class="tab-link active" onclick="switchTab('appointments')">Appointments</button>
+        <button class="tab-link" onclick="switchTab('availability')">Manage Availability</button>
+    </div>
 
-        <div class="stats">
-            <div class="stat-card">
-                <div class="label">Total Bookings</div>
-                <div class="value" id="stat-total">—</div>
+    <div id="tab-appointments" class="tab-content active">
+        <div class="main">
+            <div class="page-header">
+                <div>
+                    <h2>Appointments</h2>
+                    <p id="unseen-summary">Loading...</p>
+                </div>
+                <button class="btn-mark-all" onclick="markAllSeen()">Mark All as Seen</button>
             </div>
-            <div class="stat-card">
-                <div class="label">Unseen</div>
-                <div class="value" id="stat-unseen">—</div>
+
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="label">Total Bookings</div>
+                    <div class="value" id="stat-total">—</div>
+                </div>
+                <div class="stat-card">
+                    <div class="label">Unseen</div>
+                    <div class="value" id="stat-unseen">—</div>
+                </div>
+                <div class="stat-card">
+                    <div class="label">Seen</div>
+                    <div class="value" id="stat-seen">—</div>
+                </div>
             </div>
-            <div class="stat-card">
-                <div class="label">Seen</div>
-                <div class="value" id="stat-seen">—</div>
+
+            <div class="filters">
+                <button class="filter-btn active" onclick="setFilter('all', this)">All</button>
+                <button class="filter-btn" onclick="setFilter('unseen', this)">Unseen</button>
+                <button class="filter-btn" onclick="setFilter('seen', this)">Seen</button>
+            </div>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Client</th>
+                            <th>Service</th>
+                            <th>Date & Time</th>
+                            <th>Contact</th>
+                            <th>Notes</th>
+                            <th>Status</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="appointments-body">
+                        <tr><td colspan="7" class="loading">Loading appointments...</td></tr>
+                    </tbody>
+                </table>
             </div>
         </div>
+    </div>
 
-        <div class="filters">
-            <button class="filter-btn active" onclick="setFilter('all', this)">All</button>
-            <button class="filter-btn" onclick="setFilter('unseen', this)">Unseen</button>
-            <button class="filter-btn" onclick="setFilter('seen', this)">Seen</button>
-        </div>
+    <div id="tab-availability" class="tab-content">
+        <div class="main">
+            <div class="page-header">
+                <div>
+                    <h2>Manage Schedule Availability</h2>
+                    <p>Click calendar dates to toggle them between Available and Unavailable for clients.</p>
+                </div>
+            </div>
 
-        <div class="table-wrap">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Client</th>
-                        <th>Service</th>
-                        <th>Date & Time</th>
-                        <th>Contact</th>
-                        <th>Notes</th>
-                        <th>Status</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody id="appointments-body">
-                    <tr><td colspan="7" class="loading">Loading appointments...</td></tr>
-                </tbody>
-            </table>
+            <div class="availability-container">
+                <div class="cal-header">
+                    <button type="button" class="cal-nav-btn" onclick="adjustMonth(-1)">&lsaquo;</button>
+                    <h3 id="adminMonthYear">Month Year</h3>
+                    <button type="button" class="cal-nav-btn" onclick="adjustMonth(1)">&rsaquo;</button>
+                </div>
+                <div class="cal-weekdays">
+                    <div>Su</div><div>Mo</div><div>Tu</div><div>We</div><div>Th</div><div>Fr</div><div>Sa</div>
+                </div>
+                <div class="cal-days-grid" id="adminDaysGrid"></div>
+
+                <div class="legend-row">
+                    <div class="legend-item"><div class="legend-color" style="background:var(--gray-50);border:1px solid var(--gray-300)"></div> Available</div>
+                    <div class="legend-item"><div class="legend-color" style="background:#fee2e2;border:1px solid #fca5a5"></div> Blocked</div>
+                    <div class="legend-item"><div class="legend-color" style="background:#fef3c7;border:1px solid #fcd34d"></div> Staged Block</div>
+                    <div class="legend-item"><div class="legend-color" style="background:#dcfce7;border:1px solid #86efac"></div> Staged Unlock</div>
+                </div>
+
+                <button type="button" class="btn-save-cal" id="saveCalBtn" onclick="commitAvailability()" disabled>Save Calendar Changes</button>
+                <div class="status-msg" id="calStatusMsg"></div>
+            </div>
         </div>
     </div>
 </div>
 
-<!-- Firebase -->
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, getDocs, doc, updateDoc, writeBatch, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc, writeBatch, query, orderBy, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyCcentsIM6s8559lCI8_xhO95RinVyIET4",
@@ -416,6 +646,12 @@
 
     let allAppointments = [];
     let currentFilter = 'all';
+
+    // Availability State Management
+    let savedBlockedDates = new Set();
+    let stagedChanges = new Map(); // Standard standard date string -> true (to block) or false (to clear)
+    let adminNavDate = new Date();
+    const monthsArray = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 
     window.db = db;
     window.allAppointments = allAppointments;
@@ -511,6 +747,141 @@
         document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         renderTable();
+    };
+
+    // ── Availability Operational Architecture ──
+    async function loadBlockedDates() {
+        try {
+            const snapshot = await getDocs(collection(db, "unavailability"));
+            savedBlockedDates = new Set(snapshot.docs.map(doc => doc.id));
+            renderAdminCalendar();
+        } catch (err) {
+            console.error("Failed loading database blocks:", err);
+        }
+    }
+
+    function renderAdminCalendar() {
+        const year = adminNavDate.getFullYear();
+        const month = adminNavDate.getMonth();
+        document.getElementById('adminMonthYear').textContent = `${monthsArray[month]} ${year}`;
+
+        const firstDayIndex = new Date(year, month, 1).getDay();
+        const totalDays = new Date(year, month + 1, 0).getDate();
+        const todayStr = new Date().toISOString().split('T')[0];
+
+        const grid = document.getElementById('adminDaysGrid');
+        grid.innerHTML = "";
+
+        // Fill padding empty states
+        for (let i = 0; i < firstDayIndex; i++) {
+            const emptyDiv = document.createElement('div');
+            emptyDiv.classList.add('admin-day', 'empty');
+            grid.appendChild(emptyDiv);
+        }
+
+        // Generate calendar choice buttons mapping current conditions
+        for (let day = 1; day <= totalDays; day++) {
+            const dayBtn = document.createElement('div');
+            dayBtn.classList.add('admin-day');
+            dayBtn.textContent = day;
+
+            const loopDateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+
+            if (loopDateStr < todayStr) {
+                dayBtn.classList.add('disabled');
+            } else {
+                const isSavedBlocked = savedBlockedDates.has(loopDateStr);
+                const stagedState = stagedChanges.get(loopDateStr);
+
+                // Configure appearance classes matching current staging layers
+                if (stagedState === true) {
+                    dayBtn.classList.add('pending-block');
+                } else if (stagedState === false) {
+                    dayBtn.classList.add('pending-unblock');
+                } else if (isSavedBlocked) {
+                    dayBtn.classList.add('blocked');
+                }
+
+                dayBtn.addEventListener('click', () => toggleStagedDate(loopDateStr));
+            }
+            grid.appendChild(dayBtn);
+        }
+
+        // Manage action button activation
+        document.getElementById('saveCalBtn').disabled = (stagedChanges.size === 0);
+    }
+
+    function toggleStagedDate(dateStr) {
+        const isSavedBlocked = savedBlockedDates.has(dateStr);
+        const currentStaged = stagedChanges.get(dateStr);
+
+        if (currentStaged === undefined) {
+            // Stage an inverse shift from current database settings
+            stagedChanges.set(dateStr, !isSavedBlocked);
+        } else {
+            // Revert back to baseline state
+            stagedChanges.delete(dateStr);
+        }
+        renderAdminCalendar();
+    }
+
+    window.adjustMonth = function(offset) {
+        adminNavDate.setMonth(adminNavDate.getMonth() + offset);
+        renderAdminCalendar();
+    };
+
+    window.commitAvailability = async function() {
+        if (stagedChanges.size === 0) return;
+
+        const saveBtn = document.getElementById('saveCalBtn');
+        const msg = document.getElementById('calStatusMsg');
+        saveBtn.disabled = true;
+        msg.textContent = "Saving modifications directly to database...";
+
+        try {
+            const batch = writeBatch(db);
+
+            for (const [dateStr, shouldBlock] of stagedChanges.entries()) {
+                const docRef = doc(db, "unavailability", dateStr);
+                if (shouldBlock) {
+                    batch.set(docRef, { blocked: true });
+                } else {
+                    batch.delete(docRef);
+                }
+            }
+
+            await batch.commit();
+
+            // Merge local tracking arrays on success
+            for (const [dateStr, shouldBlock] of stagedChanges.entries()) {
+                if (shouldBlock) savedBlockedDates.add(dateStr);
+                else savedBlockedDates.delete(dateStr);
+            }
+
+            stagedChanges.clear();
+            renderAdminCalendar();
+
+            msg.textContent = "✓ Availability parameters synced perfectly!";
+            setTimeout(() => { msg.textContent = ""; }, 3500);
+        } catch (err) {
+            console.error("Batch update fault:", err);
+            msg.textContent = "Error saving modifications. Try again.";
+            saveBtn.disabled = false;
+        }
+    };
+
+    window.switchTab = function(tabName) {
+        document.querySelectorAll('.tab-link').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+        if (tabName === 'appointments') {
+            document.querySelector("button[onclick*='appointments']").classList.add('active');
+            document.getElementById('tab-appointments').classList.add('active');
+        } else {
+            document.querySelector("button[onclick*='availability']").classList.add('active');
+            document.getElementById('tab-availability').classList.add('active');
+            loadBlockedDates();
+        }
     };
 
     window.loadAppointments = loadAppointments;
