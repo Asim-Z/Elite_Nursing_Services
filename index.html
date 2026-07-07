@@ -546,7 +546,10 @@
             document.getElementById('calendarMonthYear').textContent = `${months[month]} ${year}`;
             const firstDayIndex = new Date(year, month, 1).getDay();
             const totalDays = new Date(year, month + 1, 0).getDate();
-            const todayStr = new Date().toISOString().split('T')[0];
+            // REPLACE IT WITH THIS TO ADD A 48-HOUR BUFFER:
+            const bufferDate = new Date();
+            bufferDate.setDate(bufferDate.getDate() + 2); // Adds exactly 2 days to the current date
+            const todayStr = bufferDate.toISOString().split('T')[0];
             const daysGrid = document.getElementById('calendarDays');
             daysGrid.innerHTML = "";
             
